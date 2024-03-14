@@ -1,15 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid'; // Import uuidv4
-import { TextField, Button, FormControlLabel, Checkbox, Grid } from '@mui/material';
-import { Supervisor } from '@/interfaces/Supervisor';
+import { TextField, Button, FormControlLabel, Checkbox, Grid, RadioGroup, Radio, Typography } from '@mui/material';
+import { Survivor } from '@/interfaces/Survivor';
 
-interface SupervisorFormProps {
-  onSubmit: (supervisor: Supervisor) => void;
-  initialData?: Supervisor;
+interface SurvivorFormProps {
+  onSubmit: (survivor: Survivor) => void;
+  initialData?: Survivor;
 }
 
-const SupervisorForm: React.FC<SupervisorFormProps> = ({ onSubmit, initialData }) => {
-  const [supervisor, setSupervisor] = useState<Supervisor>({
+const SurvivorForm: React.FC<SurvivorFormProps> = ({ onSubmit, initialData }) => {
+  const [survivor, setSurvivor] = useState<Survivor>({
     id: uuidv4(),
     name: '',
     age: 0,
@@ -26,13 +26,13 @@ const SupervisorForm: React.FC<SupervisorFormProps> = ({ onSubmit, initialData }
 
   useEffect(() => {
     if (initialData) {
-      setSupervisor(initialData);
+      setSurvivor(initialData);
     }
   }, [initialData]);
 
   const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    setSupervisor(prevState => ({
+    setSurvivor(prevState => ({
       ...prevState,
       [name]: value
     }));
@@ -40,7 +40,7 @@ const SupervisorForm: React.FC<SupervisorFormProps> = ({ onSubmit, initialData }
 
   const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, checked } = event.target;
-    setSupervisor(prevState => ({
+    setSurvivor(prevState => ({
       ...prevState,
       [name]: checked
     }));
@@ -48,7 +48,7 @@ const SupervisorForm: React.FC<SupervisorFormProps> = ({ onSubmit, initialData }
 
   const handleLastLocationChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = event.target;
-    setSupervisor(prevState => ({
+    setSurvivor(prevState => ({
       ...prevState,
       lastLocation: {
         ...prevState.lastLocation,
@@ -57,9 +57,16 @@ const SupervisorForm: React.FC<SupervisorFormProps> = ({ onSubmit, initialData }
     }));
   };
 
+  const handleGenderChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    setSurvivor(prevState => ({
+      ...prevState,
+      gender: event.target.value
+    }));
+  };
+
   const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    onSubmit(supervisor);
+    onSubmit(survivor);
   };
 
   return (
@@ -70,7 +77,7 @@ const SupervisorForm: React.FC<SupervisorFormProps> = ({ onSubmit, initialData }
             fullWidth
             label="Name"
             name="name"
-            value={supervisor.name}
+            value={survivor.name}
             onChange={handleChange}
           />
         </Grid>
@@ -80,18 +87,23 @@ const SupervisorForm: React.FC<SupervisorFormProps> = ({ onSubmit, initialData }
             type="number"
             label="Age"
             name="age"
-            value={supervisor.age}
+            value={survivor.age}
             onChange={handleChange}
           />
         </Grid>
         <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Gender"
+          <Typography variant="h6">Gender</Typography>
+          <RadioGroup
+            aria-label="gender"
             name="gender"
-            value={supervisor.gender}
-            onChange={handleChange}
-          />
+            value={survivor.gender}
+            onChange={handleGenderChange}
+          >
+            <div className="flex justify-start">
+              <FormControlLabel value="male" control={<Radio />} label="Male" />
+              <FormControlLabel value="female" control={<Radio />} label="Female" />
+            </div>
+          </RadioGroup>
         </Grid>
         <Grid container spacing={2} item xs={12}>
           <Grid item xs={6}>
@@ -99,7 +111,7 @@ const SupervisorForm: React.FC<SupervisorFormProps> = ({ onSubmit, initialData }
               fullWidth
               label="Last Location Latitude"
               name="latitude"
-              value={supervisor.lastLocation.latitude}
+              value={survivor.lastLocation.latitude}
               onChange={handleLastLocationChange}
             />
           </Grid>
@@ -108,19 +120,19 @@ const SupervisorForm: React.FC<SupervisorFormProps> = ({ onSubmit, initialData }
               fullWidth
               label="Last Location Longitude"
               name="longitude"
-              value={supervisor.lastLocation.longitude}
+              value={survivor.lastLocation.longitude}
               onChange={handleLastLocationChange}
             />
           </Grid>
         </Grid>
         <Grid item xs={12}>
           <FormControlLabel
-            control={<Checkbox checked={supervisor.infected} onChange={handleCheckboxChange} name="infected" />}
+            control={<Checkbox checked={survivor.infected} onChange={handleCheckboxChange} name="infected" />}
             label="Infected"
           />
         </Grid>
         <Grid item xs={12}>
-          <Button variant="contained" color="primary" type="submit">
+          <Button variant="outlined" color="primary" type="submit">
             Submit
           </Button>
         </Grid>
@@ -129,4 +141,4 @@ const SupervisorForm: React.FC<SupervisorFormProps> = ({ onSubmit, initialData }
   );
 };
 
-export default SupervisorForm;
+export default SurvivorForm;

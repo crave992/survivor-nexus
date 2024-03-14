@@ -1,11 +1,11 @@
-// @/interfaces/Supervisor.ts
+// @/interfaces/Survivor.ts
 
 export interface InventoryItem {
   item_id: string;
   quantity: number;
 }
 
-export interface Supervisor {
+export interface Survivor {
   id: string;
   name: string;
   age: number;
