@@ -1,11 +1,11 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { TableContainer, Table, TableHead, TableRow, TableCell, TableBody, Paper, IconButton, TablePagination, Button } from '@mui/material';
-import { InventoryItem, Survivor } from '@/interfaces/Survivor';
 import { KeyboardArrowUp, KeyboardArrowDown } from '@mui/icons-material';
 import MyDialog from '@/components/dialogs/MyDialog';
 import RequestItem from '@/components/forms/RequestItem';
 import { useSurvivorCrud } from '@/utils/useSurvivorsCrud';
-import useItems from '@/utils/useItems'; // Import useItems hook
+import useItems from '@/utils/useItems';
+import { InventoryItem, Survivor } from '@/interfaces/Survivor';
 
 interface SurvivorTableProps {
   survivors: Survivor[];
@@ -13,7 +13,7 @@ interface SurvivorTableProps {
 
 const InventoryTable: React.FC<SurvivorTableProps> = ({ survivors }) => {
   const { addRequestItem } = useSurvivorCrud();
-  const { getItemById } = useItems(); // Destructure getItemById from useItems hook
+  const { getItemById } = useItems();
   const [sortBy, setSortBy] = useState<keyof Survivor>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const [page, setPage] = useState(0);
@@ -21,26 +21,22 @@ const InventoryTable: React.FC<SurvivorTableProps> = ({ survivors }) => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [selectedSurvivor, setSelectedSurvivor] = useState<Survivor | null>(null);
   const [itemNames, setItemNames] = useState<{ [key: string]: string }>({});
-  const [refreshTable, setRefreshTable] = useState<boolean>(false); // State variable for refreshing the table
-  
+
   useEffect(() => {
     const fetchItemNames = async () => {
-      const names: { [key: string]: string } = { ...itemNames }; // Copy existing item names
+      const names: { [key: string]: string } = { ...itemNames };
       const uniqueItemIds = new Set<string>();
-      // Collect unique item IDs from all survivors
       survivors.forEach((survivor) => {
         survivor.inventory.forEach((item) => {
           uniqueItemIds.add(item.item_id);
         });
       });
 
-      // Filter out already fetched item IDs
       const newIds = Array.from(uniqueItemIds).filter(itemId => !names[itemId]);
 
-      if (newIds.length === 0) return; // No new items to fetch
+      if (newIds.length === 0) return;
 
       try {
-        // Fetch item names for each unique item ID
         await Promise.all(newIds.map(async (itemId) => {
           const itemData = await getItemById(itemId);
           if (itemData) {
@@ -53,7 +49,7 @@ const InventoryTable: React.FC<SurvivorTableProps> = ({ survivors }) => {
       }
     };
     fetchItemNames();
-  }, [survivors, getItemById]);
+  }, [survivors, getItemById, itemNames]); // Include itemNames in dependencies array
 
   const handleSort = (field: keyof Survivor) => {
     if (sortBy === field) {
@@ -65,15 +61,15 @@ const InventoryTable: React.FC<SurvivorTableProps> = ({ survivors }) => {
   };
 
   const sortedSurvivors = useMemo(() => {
-  const sorted = [...survivors];
-  sorted.sort((a, b) => {
-    const aValue = a[sortBy] || '';
-    const bValue = b[sortBy] || '';
-    if (aValue === bValue) return 0;
-    return sortOrder === 'asc' ? (aValue < bValue ? -1 : 1) : aValue > bValue ? -1 : 1;
-  });
-  return sorted;
-}, [survivors, sortBy, sortOrder, itemNames]);
+    const sorted = [...survivors];
+    sorted.sort((a, b) => {
+      const aValue = a[sortBy] || '';
+      const bValue = b[sortBy] || '';
+      if (aValue === bValue) return 0;
+      return sortOrder === 'asc' ? (aValue < bValue ? -1 : 1) : aValue > bValue ? -1 : 1;
+    });
+    return sorted;
+  }, [survivors, sortBy, sortOrder]); // Remove itemNames from here
 
   const handleChangePage = (event: unknown, newPage: number) => {
     setPage(newPage);
@@ -102,12 +98,7 @@ const InventoryTable: React.FC<SurvivorTableProps> = ({ survivors }) => {
   const handleCloseDialog = () => {
     setOpenDialog(false);
     setSelectedSurvivor(null);
-    if (refreshTable) {
-      setRefreshTable(false); // Reset refreshTable state after closing the dialog
-    }
   };
-
-   // Only depend on survivors and getItemById; // Include refreshTable in the dependencies array
 
   return (
     <div className="overflow-x-auto">
@@ -121,7 +112,7 @@ const InventoryTable: React.FC<SurvivorTableProps> = ({ survivors }) => {
                 </IconButton>
               </TableCell>
               <TableCell>Inventory</TableCell>
-              <TableCell>Action</TableCell> {/* New column for Action */}
+              <TableCell>Action</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
@@ -142,7 +133,7 @@ const InventoryTable: React.FC<SurvivorTableProps> = ({ survivors }) => {
                 </TableCell>
                 <TableCell>
                   <Button variant="outlined" color="secondary" onClick={() => handleRequestItem(survivor)}>Request Item</Button>
-                </TableCell> 
+                </TableCell>
               </TableRow>
             ))}
           </TableBody>
