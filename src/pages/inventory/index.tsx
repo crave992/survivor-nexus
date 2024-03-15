@@ -6,7 +6,7 @@ import InventoryTable from '@/components/tables/InventoryTable';
 import { Typography } from '@mui/material';
 
 const InventoryPage = () => {
-  const { survivors, addSurvivor, sumInventoryQuantities } = useSurvivorCrud();
+  const { survivors, sumInventoryQuantities } = useSurvivorCrud();
 
   return (
     <StandardLayout>

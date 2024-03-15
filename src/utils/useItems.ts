@@ -6,7 +6,7 @@ import { Items } from '@/interfaces/Items';
 
 const useItems = () => {
   const [items, setItems] = useState<Items[]>([]);
-
+  const [isItems, setIsItems] = useState<boolean>(false);
   const fetchItems = async () => {
     try {
       const { data, error } = await supabase.from('tbl_items').select('*');
@@ -41,6 +41,7 @@ const useItems = () => {
         createdAt: new Date(),
         updatedAt: new Date(),
       });
+      setIsItems(true);
       if (error) {
         throw error;
       }
@@ -58,6 +59,7 @@ const useItems = () => {
         ...updatedItem,
         updatedAt: new Date(),
       }).eq('id', id);
+      setIsItems(true);
       if (error) {
         throw error;
       }
@@ -72,6 +74,7 @@ const useItems = () => {
   const deleteItem = async (id: string) => {
     try {
       const { error } = await supabase.from('tbl_items').delete().eq('id', id);
+      setIsItems(true);
       if (error) {
         throw error;
       }
@@ -83,7 +86,7 @@ const useItems = () => {
 
   useEffect(() => {
     fetchItems();
-  }, []);
+  }, [isItems]);
 
   return {
     items,

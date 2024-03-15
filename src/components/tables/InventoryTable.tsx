@@ -89,7 +89,6 @@ const InventoryTable: React.FC<SurvivorTableProps> = ({ survivors }) => {
     try {
       await addRequestItem(survivorId, inventoryItems);
       handleCloseDialog();
-      window.location.reload();
     } catch (error) {
       console.error("Error handling item submission:", error);
     }

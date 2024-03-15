@@ -5,24 +5,8 @@ import useItems from '@/utils/useItems'; // Import the useItems hook
 
 export const useSurvivorCrud = () => {
   const [survivors, setSurvivors] = useState<Survivor[]>([]);
+  const [addedSurvivor, setAddedSurvivor] = useState<boolean>(false);
   const { items: allItems } = useItems(); // Fetch items using the useItems hook
-
-  useEffect(() => {
-    const fetchSurvivors = async () => {
-      try {
-        const { data, error } = await supabase.from('tbl_survivors').select('*');
-        if (error) {
-          throw error;
-        } else {
-          setSurvivors(data as Survivor[]);
-        }
-      } catch (error) {
-        console.error('Error fetching survivors:', (error as Error).message);
-      }
-    };
-
-    fetchSurvivors();
-  }, []);
 
   const countInfectedSurvivors = () => {
     return survivors.filter(survivor => survivor.infected).length;
@@ -34,6 +18,7 @@ export const useSurvivorCrud = () => {
 
   const addSurvivor = async (survivor: Survivor) => {
     try {
+      setAddedSurvivor(true);
       const { data, error } = await supabase.from('tbl_survivors').insert([survivor]);
       if (error) {
         throw error;
@@ -60,6 +45,7 @@ export const useSurvivorCrud = () => {
 
   const addRequestItem = async (supervisorId: string, inventoryItems: InventoryItem[]) => {
     try {
+      setAddedSurvivor(true);
       const { data, error } = await supabase.from('tbl_survivors').select('inventory').eq('id', supervisorId).single();
       if (error) {
         throw error;
@@ -128,6 +114,24 @@ export const useSurvivorCrud = () => {
 
     return avgAmounts;
   };
+
+  useEffect(() => {
+    const fetchSurvivors = async () => {
+      try {
+        const { data, error } = await supabase.from('tbl_survivors').select('*');
+        if (error) {
+          throw error;
+        } else {
+          setSurvivors(data as Survivor[]);
+          setAddedSurvivor(false);
+        }
+      } catch (error) {
+        console.error('Error fetching survivors:', (error as Error).message);
+      }
+    };
+
+    fetchSurvivors();
+  }, [addedSurvivor]);
 
   return {
       survivors,

@@ -25,7 +25,6 @@ const SurvivorPage = () => {
       await addSurvivor(survivor);
       console.log('Survivor added successfully');
       handleCloseDialog();
-      window.location.reload();
     } catch (error: Error | any) {
       console.error('Error adding survivor:', error.message);
     }
