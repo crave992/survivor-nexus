@@ -15,6 +15,7 @@ const useItems = () => {
       }
       if (data) {
         setItems(data);
+        setIsItems(true);
       }
     } catch (error) {
       console.error('Error fetching items:', (error as Error).message);

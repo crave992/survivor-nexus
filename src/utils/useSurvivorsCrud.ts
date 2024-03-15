@@ -45,13 +45,14 @@ export const useSurvivorCrud = () => {
 
   const addRequestItem = async (supervisorId: string, inventoryItems: InventoryItem[]) => {
     try {
-      setAddedSurvivor(true);
+      // Fetch the current survivor data including inventory
       const { data, error } = await supabase.from('tbl_survivors').select('inventory').eq('id', supervisorId).single();
       if (error) {
         throw error;
       }
       const updatedInventory = [...data.inventory];
 
+      // Update the inventory with the new items
       inventoryItems.forEach(item => {
         const existingItemIndex = updatedInventory.findIndex(i => i.item_id === item.item_id);
 
@@ -62,15 +63,28 @@ export const useSurvivorCrud = () => {
         }
       });
 
+      // Update the inventory in the database
       const { error: updateError } = await supabase.from('tbl_survivors').update({ inventory: updatedInventory }).eq('id', supervisorId);
       if (updateError) {
         throw updateError;
       }
 
+      // Update the local state of survivors with the modified inventory
+      setSurvivors(prevSurvivors => {
+        return prevSurvivors.map(survivor => {
+          if (survivor.id === supervisorId) {
+            return { ...survivor, inventory: updatedInventory };
+          } else {
+            return survivor;
+          }
+        });
+      });
+
     } catch (error) {
       console.error('Error adding request item:', (error as Error).message);
     }
   };
+
 
   const sumInventoryQuantities = () => {
     let sum = 0;
@@ -115,6 +129,19 @@ export const useSurvivorCrud = () => {
     return avgAmounts;
   };
 
+  const refreshSurvivors = async () => {
+    try {
+      const { data, error } = await supabase.from('tbl_survivors').select('*');
+      if (error) {
+        throw error;
+      } else {
+        setSurvivors(data as Survivor[]);
+      }
+    } catch (error) {
+      console.error('Error fetching survivors:', (error as Error).message);
+    }
+  };
+
   useEffect(() => {
     const fetchSurvivors = async () => {
       try {
@@ -144,5 +171,6 @@ export const useSurvivorCrud = () => {
       percentageInfected,
       percentageNonInfected,
       averageResourceAmount,
+      refreshSurvivors
   };
 };

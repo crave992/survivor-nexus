@@ -7,12 +7,12 @@ import { useSurvivorCrud } from '@/utils/useSurvivorsCrud';
 import useItems from '@/utils/useItems';
 import { InventoryItem, Survivor } from '@/interfaces/Survivor';
 
-interface SurvivorTableProps {
+interface InventoryTableProps {
   survivors: Survivor[];
 }
 
-const InventoryTable: React.FC<SurvivorTableProps> = ({ survivors }) => {
-  const { addRequestItem } = useSurvivorCrud();
+const InventoryTable: React.FC<InventoryTableProps> = ({ survivors }) => {
+  const { addRequestItem, refreshSurvivors } = useSurvivorCrud();
   const { getItemById } = useItems();
   const [sortBy, setSortBy] = useState<keyof Survivor>('name');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
@@ -21,7 +21,6 @@ const InventoryTable: React.FC<SurvivorTableProps> = ({ survivors }) => {
   const [openDialog, setOpenDialog] = useState<boolean>(false);
   const [selectedSurvivor, setSelectedSurvivor] = useState<Survivor | null>(null);
   const [itemNames, setItemNames] = useState<{ [key: string]: string }>({});
-
   useEffect(() => {
     const fetchItemNames = async () => {
       const names: { [key: string]: string } = { ...itemNames };
@@ -88,6 +87,8 @@ const InventoryTable: React.FC<SurvivorTableProps> = ({ survivors }) => {
   const handleSubmitItems = async (survivorId: string, inventoryItems: InventoryItem[]) => {
     try {
       await addRequestItem(survivorId, inventoryItems);
+      await refreshSurvivors();
+      window.location.reload();
       handleCloseDialog();
     } catch (error) {
       console.error("Error handling item submission:", error);
